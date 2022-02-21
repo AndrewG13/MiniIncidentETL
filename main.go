@@ -7,14 +7,18 @@ import (
   "io/ioutil"
   "os"
   "strconv"
+  "time"
   //"flag"
 )
 
 // CLI flag toggles
 // default settings: Sort ascending, by date discovered (ignore status)
 var directionAscending bool = true
-var sortDiscovered bool = false
-var sortStatus bool = true
+var sortDiscovered bool = true
+var sortStatus bool = false
+
+// define format of Incident dates
+const dateFormat = "2006-01-02" // special date?
 
 // Notes:
 // flag for CLI
@@ -61,7 +65,15 @@ func swap(list IncidentList, i int, j int) {
 */
 func sortOnDisc(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
-    list.IncidentList[i].Id = 100
+    smallest := i
+    for j := i + 1; j < len(list.IncidentList); j++ {
+      // compare dates
+      if compareDates(list.IncidentList[smallest], list.IncidentList[j]) {
+        smallest = j
+      }
+    }
+    // swap current index i with smallest found element
+    swap(list, smallest, i)
   }
   return
 }
@@ -76,7 +88,7 @@ func sortOnStat(list IncidentList) {
     // keep track of current smallest index
     smallest := i
     for j := i + 1; j < len(list.IncidentList); j++ {
-      // check if
+      // check statuses
       if compareStatus(list.IncidentList[smallest], list.IncidentList[j]) {
         smallest = j
       }
@@ -119,6 +131,28 @@ func statusValue(in Incident) int {
       inVal = 1
   }
   return inVal
+}
+
+/*
+*  Compare Status Function
+*    helper function used to compare two Incident Dates
+*/
+func compareDates(in1, in2 Incident) bool {
+  inDate1, _ := time.Parse(dateFormat, in1.Discovered)
+  inDate2, _ := time.Parse(dateFormat, in2.Discovered)
+  // Date comparison confusion
+  // https://stackoverflow.com/questions/45024526/comparing-two-dates-without-taking-time-into-account
+  oneDay := 24 * time.Hour
+	inDate1 = inDate1.Truncate(oneDay)
+	inDate2 = inDate2.Truncate(oneDay)
+
+	before := inDate1.Sub(inDate2)
+
+  if directionAscending {
+    return before > 0
+  } else {
+    return before <= 0
+  }
 }
 
 /*
