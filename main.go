@@ -38,18 +38,6 @@ type IncidentList struct {
   IncidentList []Incident `json:""` // key/value code may not be necessary
 }
 
-// function for testing purposes
-func change(list IncidentList) {
-  for i := 0; i < len(list.IncidentList); i++ {
-    if directionAscending {
-      list.IncidentList[i].Id = 100
-    } else {
-      list.IncidentList[i].Id = 1000
-    }
-  }
-  return
-}
-
 /*
 *  Swap Function
 *    swaps two elements in the IncidentList
@@ -105,8 +93,10 @@ func sortOnStat(list IncidentList) {
 *    New < In Progress < Done
 */
 func compareStatus(in1, in2 Incident) bool {
+  // determine value of status for each Incident
   inVal1 := statusValue(in1)
   inVal2 := statusValue(in2)
+
   if directionAscending {
     return inVal1 <= inVal2
   } else {
@@ -117,11 +107,13 @@ func compareStatus(in1, in2 Incident) bool {
 /*
 *  Status Value Function
 *    returns the value of the Incident's status
+*    This is used for comparison purposes
 *    New = 3
 *    In Progress = 2
 *    Done = 1
 */
 func statusValue(in Incident) int {
+  // return correct Status numeric value
   var inVal int
   if in.Status == "New" {
       inVal = 3
@@ -138,19 +130,22 @@ func statusValue(in Incident) int {
 *    helper function used to compare two Incident Dates
 */
 func compareDates(in1, in2 Incident) bool {
+  // parse dates for each Incident
   inDate1, _ := time.Parse(dateFormat, in1.Discovered)
   inDate2, _ := time.Parse(dateFormat, in2.Discovered)
-  // Date comparison confusion
+  // Date comparison
   // https://stackoverflow.com/questions/45024526/comparing-two-dates-without-taking-time-into-account
   oneDay := 24 * time.Hour
 	inDate1 = inDate1.Truncate(oneDay)
 	inDate2 = inDate2.Truncate(oneDay)
-
+  // numeric result of both dates compared
 	before := inDate1.Sub(inDate2)
 
   if directionAscending {
+    // in1 is before in2
     return before > 0
   } else {
+    // in1 is after in2
     return before <= 0
   }
 }
@@ -192,6 +187,7 @@ func main() {
       fmt.Println(err)
       fmt.Println("\nEnsure File follows expected JSON format.")
     } else {
+
       // test printing output
       /*
       for i := 0; i < len(ilist.IncidentList); i++ {
@@ -248,6 +244,6 @@ func main() {
     }
   }
 
-
+    // log program termination
     fmt.Println("Program Terminated")
 }
