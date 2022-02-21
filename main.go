@@ -12,7 +12,7 @@ import (
 
 // CLI flag toggles
 // default settings: Sort ascending, by date discovered (ignore status)
-var directionAscending, sortDiscovered, sortStatus bool = true, true, false
+var directionAscending, sortDiscovered, sortStatus bool = true, false, true
 
 // Notes:
 // flag for CLI
@@ -44,6 +44,11 @@ func change(list IncidentList) {
   return
 }
 
+func swap(list IncidentList, i int, j int) {
+  list.IncidentList[i], list.IncidentList[j] = list.IncidentList[j], list.IncidentList[i]
+  return
+}
+
 func sortOnDisc(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     list.IncidentList[i].Id = 100
@@ -53,11 +58,40 @@ func sortOnDisc(list IncidentList) {
 
 func sortOnStat(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
-    list.IncidentList[i].Id = 100
+    // keep track of current smallest index
+    smallest := i
+    for j := i + 1; j < len(list.IncidentList); j++ {
+      // check if
+      if compareStatus(list.IncidentList[smallest], list.IncidentList[j]) {
+        smallest = j
+      }
+    }
+    swap(list, smallest, i)
   }
   return
 }
 
+func compareStatus(in1, in2 Incident) bool {
+  inVal1 := statusValue(in1)
+  inVal2 := statusValue(in2)
+  return inVal1 <= inVal2
+}
+
+func statusValue(in Incident) int {
+  var inVal int
+  if in.Status == "New" {
+      inVal = 1
+  } else if in.Status == "In Progress" {
+      inVal = 2
+  } else {
+      inVal = 3
+  }
+  return inVal
+}
+
+/*
+*  Main
+*/
 func main() {
     // format for the first line of csv file
     // todo: improve this, have the actual json key names used
@@ -105,7 +139,9 @@ func main() {
       */
 
       // test change function
-      change(ilist)
+      if len(ilist.IncidentList) > 1 {
+        //sortOnStat(ilist)
+      }
 
       // create csv file in 'output' folder
       csvFile, err := os.Create("output/data.csv")
