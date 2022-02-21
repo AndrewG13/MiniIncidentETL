@@ -24,7 +24,7 @@ type Incident struct {
 
 // define struct for JSON array
 type IncidentList struct {
-  IncidentList []Incident `json:""`
+  IncidentList []Incident `json:""` // key/value code may not be necessary
 }
 
 func main() {
@@ -46,14 +46,17 @@ func main() {
     // read JSON file as byte array
     byteValue, _ := ioutil.ReadAll(jsonFile)
     // initialize IncidentList struct
-    var ilist IncidentList // giving problems
-
+    var ilist IncidentList
+    // unmarshal byteValue array into ilist
     err = json.Unmarshal(byteValue, &ilist.IncidentList)
+
+    // if unmarshal error occurs, print error
     if err != nil {
       fmt.Println("Error Reading File:\n")
       fmt.Println(err)
       fmt.Println("\nEnsure File follows expected JSON format.")
     } else {
+      // test printing output
       for i := 0; i < len(ilist.IncidentList); i++ {
         fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
         fmt.Println("name: " + ilist.IncidentList[i].Name)
