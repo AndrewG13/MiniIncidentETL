@@ -1,4 +1,7 @@
 ID,Name,Discovered,Description,Status
-1,Lost Laptop,2018-02-19,Doctor lost her laptop while on vacation.,Done
-3,Lost iPad with Medical Record,2018-04-01,Nurse misplaced a patient's medical records while in the office.,In Progress
+4,Data Breach,2020-12-11,Andrew's biscotti recipe leaked online.,New
 2,Misdirected Fax,2018-04-02,Patient's medical records faxed to wrong number.,New
+40,Misdirected Fax,2018-05-02,Patient's medical records faxed to wrong number.,In Progress
+3,Lost iPad with Medical Record,2018-04-01,Nurse misplaced a patient's medical records while in the office.,In Progress
+1,Lost Laptop,2018-02-19,Doctor lost her laptop while on vacation.,Done
+5,User Data Compromised,2019-02-19,Unauthorized access on patient account #552.,Done
