@@ -46,11 +46,19 @@ func change(list IncidentList) {
   return
 }
 
+/*
+*  Swap Function
+*    swaps two elements in the IncidentList
+*/
 func swap(list IncidentList, i int, j int) {
   list.IncidentList[i], list.IncidentList[j] = list.IncidentList[j], list.IncidentList[i]
   return
 }
 
+/*
+*  Sort On Discovered Function
+*    Applies sorting based on date discovered
+*/
 func sortOnDisc(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     list.IncidentList[i].Id = 100
@@ -58,6 +66,11 @@ func sortOnDisc(list IncidentList) {
   return
 }
 
+/*
+*  Sort On Status Function
+*    Applies sorting based on Incident status
+*    Algorithm: In-place Selection Sort
+*/
 func sortOnStat(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     // keep track of current smallest index
@@ -68,11 +81,17 @@ func sortOnStat(list IncidentList) {
         smallest = j
       }
     }
+    // swap current index i with smallest found element
     swap(list, smallest, i)
   }
   return
 }
 
+/*
+*  Compare Status Function
+*    helper function used to compare two Incident Status values
+*    New < In Progress < Done
+*/
 func compareStatus(in1, in2 Incident) bool {
   inVal1 := statusValue(in1)
   inVal2 := statusValue(in2)
@@ -83,6 +102,13 @@ func compareStatus(in1, in2 Incident) bool {
   }
 }
 
+/*
+*  Status Value Function
+*    returns the value of the Incident's status
+*    New = 3
+*    In Progress = 2
+*    Done = 1
+*/
 func statusValue(in Incident) int {
   var inVal int
   if in.Status == "New" {
@@ -103,7 +129,6 @@ func main() {
     // todo: improve this, have the actual json key names used
     columnNames := []string {"ID", "Name", "Discovered", "Description", "Status"}
     // acceptable sort directions
-    //sortDirections := []string {"Ascending","Descending"}
 
     // Open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
@@ -144,9 +169,15 @@ func main() {
       }
       */
 
-      // test change function
+      // check if sorting is necessary (A size of 1 is sorted)
       if len(ilist.IncidentList) > 1 {
-        sortOnStat(ilist)
+        // if user entered sorting preference, call requested sorting mode
+        if sortStatus {
+          sortOnStat(ilist)
+        } else
+        if sortDiscovered {
+          sortOnDisc(ilist)
+        }
       }
 
       // create csv file in 'output' folder
