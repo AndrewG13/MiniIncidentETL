@@ -8,7 +8,7 @@ import (
   "os"
   "strconv"
   "time"
-  //"flag"
+  "flag"
 )
 
 // CLI flag toggles
@@ -244,9 +244,22 @@ func main() {
     }
   }
 
-    fmt.Println("\nAscending Mode: ", directionAscending)
-    fmt.Println("    sortStatus: ", sortStatus)
-    fmt.Println("sortDiscovered: ", sortDiscovered)
-    // log program termination
-    fmt.Println("\nProgram Terminated")
+/*
+*  flags
+*/
+
+// -sortfield
+//  Specify 'Discovered' or 'Status' to sort on
+sortfieldPtr := flag.String("sortfield", "status", "Usage <field> : Specify field to sort on [discovered, status]")
+
+// -sortdirection
+//  Specify 'Ascending' or 'Descending' Direction to sort by
+sortdirectionPtr := flag.String("sortdirection", "ascending", "Usage <direction> : Specify direction to sort by [ascending, descending]")
+
+fmt.Println("\nAscending Mode: ", directionAscending)
+fmt.Println("    sortStatus: ", sortStatus)
+fmt.Println("sortDiscovered: ", sortDiscovered)
+
+// log program termination
+fmt.Println("\nProgram Terminated")
 }
