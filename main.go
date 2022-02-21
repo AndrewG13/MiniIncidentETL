@@ -11,6 +11,9 @@ import (
   //"flag"
 )
 
+// debug mode (additional prints)
+var debug bool = false
+
 // CLI flag toggles
 // default settings: Sort ascending, by date discovered (ignore status)
 var directionAscending bool = false
@@ -189,15 +192,17 @@ func main() {
     } else {
 
       // test printing output
-      /*
-      for i := 0; i < len(ilist.IncidentList); i++ {
-        fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
-        fmt.Println("name: " + ilist.IncidentList[i].Name)
-        fmt.Println("discovered: " + ilist.IncidentList[i].Discovered)
-        fmt.Println("description: " + ilist.IncidentList[i].Description)
-        fmt.Println("status: " + ilist.IncidentList[i].Status)
+      if debug {
+        for i := 0; i < len(ilist.IncidentList); i++ {
+          fmt.Println("---")
+          fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
+          fmt.Println("name: " + ilist.IncidentList[i].Name)
+          fmt.Println("discovered: " + ilist.IncidentList[i].Discovered)
+          fmt.Println("description: " + ilist.IncidentList[i].Description)
+          fmt.Println("status: " + ilist.IncidentList[i].Status)
+        }
+        fmt.Println("---")
       }
-      */
 
       // check if sorting is necessary (A size of 1 is sorted)
       if len(ilist.IncidentList) > 1 {
@@ -243,10 +248,12 @@ func main() {
       }
     }
   }
+    if debug {
+      fmt.Println("\nAscending Mode: ", directionAscending)
+      fmt.Println("    sortStatus: ", sortStatus)
+      fmt.Println("sortDiscovered: ", sortDiscovered)
+    }
 
-    fmt.Println("\nAscending Mode: ", directionAscending)
-    fmt.Println("    sortStatus: ", sortStatus)
-    fmt.Println("sortDiscovered: ", sortDiscovered)
     // log program termination
     fmt.Println("\nProgram Terminated")
 }
