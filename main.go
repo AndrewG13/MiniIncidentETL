@@ -10,13 +10,18 @@ import (
 // flag for CLI
 // https://pkg.go.dev/flag
 
-// define struct for JSON data, may not need
+// define struct for JSON data
 type Incident struct {
   Id int `json:"id"`
   Name string `json:"name"`
   Discovered string `json:"discovered"`
   Description string `json:"description"`
   Status string `json:"status"`
+}
+
+// define struct for JSON array
+type IncidentList struct {
+  IncidentList Incident[] `json:incidentList`
 }
 
 func main() {
