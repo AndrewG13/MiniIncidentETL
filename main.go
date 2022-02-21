@@ -32,6 +32,13 @@ type IncidentList struct {
   IncidentList []Incident `json:""` // key/value code may not be necessary
 }
 
+func change(list IncidentList) {
+  for i := 0; i < len(list.IncidentList); i++ {
+    list.IncidentList[i].Id = 100
+  }
+  return
+}
+
 func main() {
     // format for the first line of csv file
     // todo: improve this, have the actual json key names used
@@ -77,6 +84,9 @@ func main() {
         fmt.Println("status: " + ilist.IncidentList[i].Status)
       }
       */
+
+      // test change function
+      change(ilist)
 
       // create csv file in 'output' folder
       csvFile, err := os.Create("output/data.csv")
