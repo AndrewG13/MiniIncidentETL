@@ -7,7 +7,12 @@ import (
   "io/ioutil"
   "os"
   "strconv"
+  //"flag"
 )
+
+// CLI flag toggles
+// default settings: Sort ascending, by date discovered (ignore status)
+var directionAscending, sortDiscovered, sortStatus bool = true, true, false
 
 // Notes:
 // flag for CLI
@@ -29,6 +34,7 @@ type IncidentList struct {
 
 func main() {
     // to format first line of csv file
+    // todo: improve this, have the actual json key names used
     columnNames := []string {"id","name","discovered","description","status"}
 
     // Open the JSON data file for usage
@@ -69,6 +75,7 @@ func main() {
         fmt.Println("status: " + ilist.IncidentList[i].Status)
       }
       */
+      
       // create csv file in 'output' folder
       csvFile, err := os.Create("output/data.csv")
 
