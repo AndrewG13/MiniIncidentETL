@@ -41,7 +41,7 @@ func main() {
       fmt.Println("\nEnsure File is in 'input' folder & named 'data.json'.")
     } else {
       // file access successful!
-      fmt.Println("File Successfully Accessed")
+      fmt.Println("Input File Successfully Accessed")
     }
 
     // defer closing the file to allow parsing
@@ -60,6 +60,7 @@ func main() {
       fmt.Println("\nEnsure File follows expected JSON format.")
     } else {
       // test printing output
+      /*
       for i := 0; i < len(ilist.IncidentList); i++ {
         fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
         fmt.Println("name: " + ilist.IncidentList[i].Name)
@@ -67,7 +68,7 @@ func main() {
         fmt.Println("description: " + ilist.IncidentList[i].Description)
         fmt.Println("status: " + ilist.IncidentList[i].Status)
       }
-
+      */
       // create csv file in 'output' folder
       csvFile, err := os.Create("output/data.csv")
 
@@ -81,12 +82,12 @@ func main() {
 
         // defer CSV file from closing
         defer csvFile.Close()
-        // create writer to write to output files
+        // create writer to write to output file
         writer := csv.NewWriter(csvFile)
 
         // write the column names as first line
         writer.Write(columnNames)
-
+        // write all JSON data into output CSV file
         for _, dataEntry := range ilist.IncidentList {
           var csvRow []string
           csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
@@ -96,6 +97,7 @@ func main() {
           csvRow = append(csvRow, dataEntry.Status)
           writer.Write(csvRow)
         }
+        fmt.Println("Output File Successfully Created")
         writer.Flush()
       }
     }
