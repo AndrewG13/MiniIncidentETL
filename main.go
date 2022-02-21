@@ -32,7 +32,26 @@ type IncidentList struct {
   IncidentList []Incident `json:""` // key/value code may not be necessary
 }
 
+// function for testing purposes
 func change(list IncidentList) {
+  for i := 0; i < len(list.IncidentList); i++ {
+    if directionAscending {
+      list.IncidentList[i].Id = 100
+    } else {
+      list.IncidentList[i].Id = 1000
+    }
+  }
+  return
+}
+
+func sortOnDisc(list IncidentList) {
+  for i := 0; i < len(list.IncidentList); i++ {
+    list.IncidentList[i].Id = 100
+  }
+  return
+}
+
+func sortOnStat(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     list.IncidentList[i].Id = 100
   }
