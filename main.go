@@ -244,6 +244,9 @@ func main() {
     }
   }
 
+    fmt.Println("\nAscending Mode: ", directionAscending)
+    fmt.Println("    sortStatus: ", sortStatus)
+    fmt.Println("sortDiscovered: ", sortDiscovered)
     // log program termination
-    fmt.Println("Program Terminated")
+    fmt.Println("\nProgram Terminated")
 }
