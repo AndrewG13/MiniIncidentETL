@@ -2,8 +2,11 @@ package main
 
 import (
   "fmt"
-  //"encoding/json"
+  "encoding/json"
+  //"encoding/csv"
+  "io/ioutil"
   "os"
+  "strconv"
 )
 
 // Notes:
@@ -21,7 +24,7 @@ type Incident struct {
 
 // define struct for JSON array
 type IncidentList struct {
-  IncidentList Incident[] `json:incidentList`
+  IncidentList []Incident `json:""`
 }
 
 func main() {
@@ -36,9 +39,30 @@ func main() {
     } else {
       // file access successful!
       fmt.Println("File Successfully Accessed")
-      // defer closing the file to allow parsing
-      defer jsonFile.Close()
     }
+
+    // defer closing the file to allow parsing
+    defer jsonFile.Close()
+    // read JSON file as byte array
+    byteValue, _ := ioutil.ReadAll(jsonFile)
+    // initialize IncidentList struct
+    var ilist IncidentList // giving problems
+
+    err = json.Unmarshal(byteValue, &ilist.IncidentList)
+    if err != nil {
+      fmt.Println("Error Reading File:\n")
+      fmt.Println(err)
+      fmt.Println("\nEnsure File follows expected JSON format.")
+    } else {
+      for i := 0; i < len(ilist.IncidentList); i++ {
+        fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
+        fmt.Println("name: " + ilist.IncidentList[i].Name)
+        fmt.Println("discovered: " + ilist.IncidentList[i].Discovered)
+        fmt.Println("description: " + ilist.IncidentList[i].Description)
+        fmt.Println("status: " + ilist.IncidentList[i].Status)
+      }
+    }
+
 
 
     //fmt.Println("Hello World! from Andrew Giardina")
