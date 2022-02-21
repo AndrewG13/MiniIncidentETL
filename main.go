@@ -12,7 +12,7 @@ import (
 
 // CLI flag toggles
 // default settings: Sort ascending, by date discovered (ignore status)
-var directionAscending, sortDiscovered, sortStatus bool = true, false, true
+var directionAscending, sortDiscovered, sortStatus bool = false, false, true
 
 // Notes:
 // flag for CLI
@@ -74,7 +74,11 @@ func sortOnStat(list IncidentList) {
 func compareStatus(in1, in2 Incident) bool {
   inVal1 := statusValue(in1)
   inVal2 := statusValue(in2)
-  return inVal1 <= inVal2
+  if directionAscending {
+    return inVal1 <= inVal2
+  } else {
+    return inVal1 > inVal2
+  }
 }
 
 func statusValue(in Incident) int {
