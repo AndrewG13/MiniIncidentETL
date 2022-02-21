@@ -12,7 +12,9 @@ import (
 
 // CLI flag toggles
 // default settings: Sort ascending, by date discovered (ignore status)
-var directionAscending, sortDiscovered, sortStatus bool = true, false, true
+var directionAscending bool = true
+var sortDiscovered bool = false
+var sortStatus bool = true
 
 // Notes:
 // flag for CLI
