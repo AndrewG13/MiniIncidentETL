@@ -3,7 +3,7 @@ package main
 import (
   "fmt"
   "encoding/json"
-  //"encoding/csv"
+  "encoding/csv"
   "io/ioutil"
   "os"
   "strconv"
@@ -28,6 +28,9 @@ type IncidentList struct {
 }
 
 func main() {
+    // to format first line of csv file
+    columnNames := []string {"id","name","discovered","description","status"}
+
     // Open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
 
@@ -52,7 +55,7 @@ func main() {
 
     // if unmarshal error occurs, print error
     if err != nil {
-      fmt.Println("Error Reading File:\n")
+      fmt.Println("Error Reading JSON File:\n")
       fmt.Println(err)
       fmt.Println("\nEnsure File follows expected JSON format.")
     } else {
@@ -63,6 +66,37 @@ func main() {
         fmt.Println("discovered: " + ilist.IncidentList[i].Discovered)
         fmt.Println("description: " + ilist.IncidentList[i].Description)
         fmt.Println("status: " + ilist.IncidentList[i].Status)
+      }
+
+      // create csv file in 'output' folder
+      csvFile, err := os.Create("output/data.csv")
+
+      // if file creation error occurs, print error
+      if err != nil {
+        fmt.Println("Error Creating CSV File:\n")
+        fmt.Println(err)
+        fmt.Println("\nEnsure ")
+      } else {
+        // file creation successful
+
+        // defer CSV file from closing
+        defer csvFile.Close()
+        // create writer to write to output files
+        writer := csv.NewWriter(csvFile)
+
+        // write the column names as first line
+        writer.Write(columnNames)
+
+        for _, dataEntry := range ilist.IncidentList {
+          var csvRow []string
+          csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
+          csvRow = append(csvRow, dataEntry.Name)
+          csvRow = append(csvRow, dataEntry.Discovered)
+          csvRow = append(csvRow, dataEntry.Description)
+          csvRow = append(csvRow, dataEntry.Status)
+          writer.Write(csvRow)
+        }
+        writer.Flush()
       }
     }
 
