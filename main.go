@@ -33,9 +33,11 @@ type IncidentList struct {
 }
 
 func main() {
-    // to format first line of csv file
+    // format for the first line of csv file
     // todo: improve this, have the actual json key names used
-    columnNames := []string {"id","name","discovered","description","status"}
+    columnNames := []string {"ID", "Name", "Discovered", "Description", "Status"}
+    // acceptable sort directions
+    //sortDirections := []string {"Ascending","Descending"}
 
     // Open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
@@ -48,7 +50,7 @@ func main() {
     } else {
       // file access successful!
       fmt.Println("Input File Successfully Accessed")
-    }
+
 
     // defer closing the file to allow parsing
     defer jsonFile.Close()
@@ -75,7 +77,7 @@ func main() {
         fmt.Println("status: " + ilist.IncidentList[i].Status)
       }
       */
-      
+
       // create csv file in 'output' folder
       csvFile, err := os.Create("output/data.csv")
 
@@ -108,8 +110,8 @@ func main() {
         writer.Flush()
       }
     }
+  }
 
 
-
-    //fmt.Println("Hello World! from Andrew Giardina")
+    fmt.Println("Program Terminated")
 }
