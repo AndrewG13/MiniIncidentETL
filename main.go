@@ -80,11 +80,11 @@ func compareStatus(in1, in2 Incident) bool {
 func statusValue(in Incident) int {
   var inVal int
   if in.Status == "New" {
-      inVal = 1
+      inVal = 3
   } else if in.Status == "In Progress" {
       inVal = 2
   } else {
-      inVal = 3
+      inVal = 1
   }
   return inVal
 }
@@ -140,7 +140,7 @@ func main() {
 
       // test change function
       if len(ilist.IncidentList) > 1 {
-        //sortOnStat(ilist)
+        sortOnStat(ilist)
       }
 
       // create csv file in 'output' folder
