@@ -245,21 +245,43 @@ func main() {
   }
 
 /*
-*  flags
+*  flags & cmd
 */
 
-// -sortfield
-//  Specify 'Discovered' or 'Status' to sort on
-sortfieldPtr := flag.String("sortfield", "status", "Usage <field> : Specify field to sort on [discovered, status]")
+    // -sortfield
+    //  Specify 'Discovered' or 'Status' to sort on
+    sortfieldCmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
+    sortfieldStat := sortfieldCmd.String("status", "", "status")
+    sortfieldDisc := sortfieldCmd.String("discovered", "", "discovered")
 
-// -sortdirection
-//  Specify 'Ascending' or 'Descending' Direction to sort by
-sortdirectionPtr := flag.String("sortdirection", "ascending", "Usage <direction> : Specify direction to sort by [ascending, descending]")
+    // -sortdirection
+    //  Specify 'Ascending' or 'Descending' Direction to sort by
+    sortdirectionCmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
+    sortdirectionAs := sortdirectionCmd.String("ascending", "", "ascending")
+    sortdirectionDs := sortdirectionCmd.String("descending", "", "descending")
 
+    switch os.Args[1] {
+      case "sortfield":
+
+      case "sortdirection":
+
+    }
+
+flag.Parse()
+
+//fmt.Println(sortfieldPtr, sortdirectionPtr)
 fmt.Println("\nAscending Mode: ", directionAscending)
 fmt.Println("    sortStatus: ", sortStatus)
 fmt.Println("sortDiscovered: ", sortDiscovered)
 
 // log program termination
 fmt.Println("\nProgram Terminated")
+}
+
+func handleSortField(sortfieldCmd) {
+
+}
+
+func handleSortDirection(sortdirectionCmd *flag.FlagSet, status *string, discovered *string) {
+
 }
