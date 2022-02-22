@@ -36,7 +36,7 @@ Helpful Examples -
   
 Error Examples (for testing purposes) -
 - Invalid tag: `go run main.go sortfield -nah`  
-- Duplicate Command: `go run main.go sortfield -status sortfield -status`
+- Duplicate Command: `go run main.go sortfield -status sortfield -discovered`
 - Invalid Command: `go run main.go sortfield -discovered randomstring columns -id`
 
 ## Future Development Plans:  
