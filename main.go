@@ -215,8 +215,8 @@ func main() {
         // -sortfield
         //  Specify 'Discovered' or 'Status' to sort on
         sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-        sortfield_Arg := sortfield_Cmd.String("field", "", "[status, discovered]")
-        //sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
+        sortfield_Stat := sortfield_Cmd.String("status", "", "status")
+        sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
 
         // -sortdirection
         //  Specify 'Ascending' or 'Descending' Direction to sort by
@@ -237,12 +237,12 @@ func main() {
 
         switch os.Args[1] {
           case "sortfield":
-            handleSortField(sortfield_Cmd, sortfield_Arg)
+            handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
           case "sortdirection":
             handleSortDirection(sortdirection_Cmd, sortdirection_Arg)
         }
 
-      //flag.Parse()
+      flag.Parse()
 
 
     // open the JSON data file for usage
@@ -355,22 +355,23 @@ func main() {
 
 }// end main
 
-func handleSortField(sortfield_Cmd *flag.FlagSet, field *string) {
+func handleSortField(sortfield_Cmd *flag.FlagSet, status *string, disc *string) {
   // parse command args
-  sortfield_Cmd.Parse(os.Args[1:])
-  fmt.Println("FIELD:",os.Args[1:])
+  sortfield_Cmd.Parse(os.Args[2:])
+  fmt.Println("FIELD:")
   // check if any args were passed in
-  if *field == "" {
+  if *status == "" && *disc == "" {
     fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
   // user passed "status" field
-  if *field == "status" || *field == "STATUS" {
+  if *status == "status" || *status == "STATUS" {
+    fmt.Println("status is passed in")
     sortStatus = true
   } else
   // user passed "discovered" field
-  if *field == "discovered" || *field == "DISCOVERED"{
+  if *disc == "discovered" || *disc == "DISCOVERED"{
     sortDiscovered = true
   } else {
     // unrecognized field
