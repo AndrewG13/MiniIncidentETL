@@ -215,14 +215,14 @@ func main() {
         // -sortfield
         //  Specify 'Discovered' or 'Status' to sort on
         sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-        sortfield_Stat := sortfield_Cmd.Bool("status", false, "status")
-        sortfield_Disc := sortfield_Cmd.Bool("discovered", false, "discovered")
+        sortfield_Stat := sortfield_Cmd.Bool("status", false, "Sort Incidents by Status")
+        sortfield_Disc := sortfield_Cmd.Bool("discovered", false, "Sort Incidents by Discovered date")
 
         // -sortdirection
         //  Specify 'Ascending' or 'Descending' Direction to sort by
         sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
-        sortdirection_Arg := sortdirection_Cmd.String("direction", "", "[ascending, descending]")
-        //sortdirection_Ds := sortdirection_Cmd.String("descending", "", "descending")
+        sortdirection_As := sortdirection_Cmd.Bool("ascending", false, "Sort Incidents in Ascending order")
+        sortdirection_Ds := sortdirection_Cmd.Bool("descending", false, "Sort Incidents in Descending order")
 
         /*
         // -columns
@@ -244,7 +244,7 @@ func main() {
             case "sortfield":
               handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
             case "sortdirection":
-              handleSortDirection(sortdirection_Cmd, sortdirection_Arg)
+              handleSortDirection(sortdirection_Cmd, sortdirection_As, sortdirection_Ds)
             default:
               fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
               fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
@@ -388,28 +388,30 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
   }
 }
 
-func handleSortDirection(sortdirection_Cmd *flag.FlagSet, field *string) {
+func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) {
   // parse command args
-  sortdirection_Cmd.Parse(os.Args[0:])
+  sortdirection_Cmd.Parse(os.Args[2:])
   // check if any args were passed in
-  if *field == "" {
+  // check if any args were passed in
+  if !*asc && !*dsc {
     fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
-    //sortdirection_Cmd.PrintDefaults()
+    //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
   // user passed "status" field
-  if *field == "ascending" || *field == "ASCENDING" {
-    sortStatus = true
+  if *asc {
+    directionAscending = true
   } else
   // user passed "discovered" field
-  if *field == "descending" || *field == "DESCENDING" {
-    sortDiscovered = true
+  if *dsc {
+    directionAscending = false // I like to ensure :)
   } else {
     // unrecognized field
-    fmt.Print("Usage -sortdirection <direction>: Direction Unrecognized. Available Arguments: [ascending, descending]\n")
-    //sortdirection_Cmd.PrintDefaults()
+    fmt.Print("Usage -sortdirection <direction>: Field Unrecognized. Available Arguments: [ascending, descending]\n")
+    //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   }
+
 }
 /*
 func handleColumns(columns_Cmd *flag.FlagSet, id *string, name *string, disc string, desc *string, stat *string) {
