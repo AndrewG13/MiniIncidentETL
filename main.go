@@ -176,8 +176,26 @@ func compareDates(in1, in2 Incident) bool {
   }
 }
 
+/*
+*  Filter Column Names Function
+*    determines which column 'titles' to write to CSV
+*/
 func filterColumnNames() {
-  
+  if !columnsFilter.Include_Id {
+    columnNames[0] = ""
+  }
+  if !columnsFilter.Include_Name {
+    columnNames[1] = ""
+  }
+  if !columnsFilter.Include_Disc {
+    columnNames[2] = ""
+  }
+  if !columnsFilter.Include_Desc {
+    columnNames[3] = ""
+  }
+  if !columnsFilter.Include_Stat {
+    columnNames[4] = ""
+  }
 }
 
 /*
@@ -189,6 +207,43 @@ func main() {
     columnNames := []string {"ID", "Name", "Discovered", "Description", "Status"}
     // define columns to include in CSV, default = all
     columnsFilter := Columns{true, true, true, true, true}
+
+    /*
+    *  flags & cmd
+    */
+
+        // -sortfield
+        //  Specify 'Discovered' or 'Status' to sort on
+        sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
+        sortfield_Arg := sortfield_Cmd.String("field", "", "[status, discovered]")
+        //sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
+
+        // -sortdirection
+        //  Specify 'Ascending' or 'Descending' Direction to sort by
+        sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
+        sortdirection_Arg := sortdirection_Cmd.String("direction", "", "[ascending, descending]")
+        //sortdirection_Ds := sortdirection_Cmd.String("descending", "", "descending")
+
+        /*
+        // -columns
+        //  Specify columns to exclusively include
+        columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
+        columns_ID   := columns_Cmd.bool("id", false, "id")
+        columns_Name := columns_Cmd.bool("name", false, "name")
+        columns_Disc := columns_Cmd.bool("discovered", false, "discovered")
+        columns_Desc := columns_Cmd.bool("description", false, "description")
+        columns_Stat := columns_Cmd.bool("status", false, "status")
+        */
+
+        switch os.Args[1] {
+          case "sortfield":
+            handleSortField(sortfield_Cmd, sortfield_Arg)
+          case "sortdirection":
+            handleSortDirection(sortdirection_Cmd, sortdirection_Arg)
+        }
+
+      //flag.Parse()
+
 
     // open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
@@ -256,18 +311,33 @@ func main() {
         // create writer to write to output file
         writer := csv.NewWriter(csvFile)
 
+        // filter column titles
+        filterColumnNames()
         // write the column names as first line
         writer.Write(columnNames)
+
         // write all JSON data into output CSV file
         for _, dataEntry := range ilist.IncidentList {
           var csvRow []string
-          csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
-          csvRow = append(csvRow, dataEntry.Name)
-          csvRow = append(csvRow, dataEntry.Discovered)
-          csvRow = append(csvRow, dataEntry.Description)
-          csvRow = append(csvRow, dataEntry.Status)
+          // filter attributes
+          if columnsFilter.Include_Id {
+            csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
+          }
+          if columnsFilter.Include_Name {
+            csvRow = append(csvRow, dataEntry.Name)
+          }
+          if columnsFilter.Include_Disc {
+            csvRow = append(csvRow, dataEntry.Discovered)
+          }
+          if columnsFilter.Include_Desc {
+            csvRow = append(csvRow, dataEntry.Description)
+          }
+          if columnsFilter.Include_Stat {
+            csvRow = append(csvRow, dataEntry.Status)
+          }
           writer.Write(csvRow)
         }
+
         fmt.Println("Output File Successfully Created")
         writer.Flush()
 
@@ -275,88 +345,80 @@ func main() {
     } // end JSON reading logic
   } // end JSON file access logic
 
-/*
-*  flags & cmd
-*/
+  //fmt.Println(sortfieldPtr, sortdirectionPtr)
+  fmt.Println("\nAscending Mode: ", directionAscending)
+  fmt.Println("    sortStatus: ", sortStatus)
+  fmt.Println("sortDiscovered: ", sortDiscovered)
 
-    // -sortfield
-    //  Specify 'Discovered' or 'Status' to sort on
-    sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-    sortfield_Stat := sortfield_Cmd.String("status", "", "status")
-    sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
+  // log program termination
+  fmt.Println("\nProgram Terminated")
 
-    // -sortdirection
-    //  Specify 'Ascending' or 'Descending' Direction to sort by
-    sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
-    sortdirection_As := sortdirection_Cmd.String("ascending", "", "ascending")
-    sortdirection_Ds := sortdirection_Cmd.String("descending", "", "descending")
-
-    // -columns
-    //  Specify columns to exclusively include
-    columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
-    columns_ID   := columns_Cmd.String("id", "", "id")
-    columns_Name := columns_Cmd.String("name", "", "name")
-    columns_Disc := columns_Cmd.String("discovered", "", "discovered")
-    columns_Desc := columns_Cmd.String("description", "", "description")
-    columns_Stat := columns_Cmd.String("status", "", "status")
-
-    switch os.Args[1] {
-      case "sortfield":
-
-      case "sortdirection":
-
-    }
-
-flag.Parse()
-
-//fmt.Println(sortfieldPtr, sortdirectionPtr)
-fmt.Println("\nAscending Mode: ", directionAscending)
-fmt.Println("    sortStatus: ", sortStatus)
-fmt.Println("sortDiscovered: ", sortDiscovered)
-
-// log program termination
-fmt.Println("\nProgram Terminated")
-}
+}// end main
 
 func handleSortField(sortfield_Cmd *flag.FlagSet, field *string) {
   // parse command args
-  sortfield_Cmd.Parse(os.Args[1])
+  sortfield_Cmd.Parse(os.Args[1:])
+  fmt.Println("FIELD:",os.Args[1:])
   // check if any args were passed in
   if *field == "" {
-    fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]")
-    sortfield_Cmd.PrintDefaults()
+    fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
+    //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
   // user passed "status" field
-  if *field == "status" {
+  if *field == "status" || *field == "STATUS" {
     sortStatus = true
   } else
   // user passed "discovered" field
-  if *field == "discovered" {
+  if *field == "discovered" || *field == "DISCOVERED"{
     sortDiscovered = true
   } else {
     // unrecognized field
-    fmt.Print("Usage -sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]")
-    sortfield_Cmd.PrintDefaults()
+    fmt.Print("Usage -sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]\n")
+    //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   }
 }
 
 func handleSortDirection(sortdirection_Cmd *flag.FlagSet, field *string) {
   // parse command args
-  sortdirection_Cmd.Parse(os.Args[0])
+  sortdirection_Cmd.Parse(os.Args[0:])
   // check if any args were passed in
   if *field == "" {
-    fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]")
+    fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
+    //sortdirection_Cmd.PrintDefaults()
+    os.Exit(1)
+  } else
+  // user passed "status" field
+  if *field == "ascending" || *field == "ASCENDING" {
+    sortStatus = true
+  } else
+  // user passed "discovered" field
+  if *field == "descending" || *field == "DESCENDING" {
+    sortDiscovered = true
+  } else {
+    // unrecognized field
+    fmt.Print("Usage -sortdirection <direction>: Direction Unrecognized. Available Arguments: [ascending, descending]\n")
+    //sortdirection_Cmd.PrintDefaults()
+    os.Exit(1)
+  }
+}
+/*
+func handleColumns(columns_Cmd *flag.FlagSet, id *string, name *string, disc string, desc *string, stat *string) {
+  // parse command args
+  columns_Cmd.Parse(os.Args[:4])
+  // check if any args were passed in
+  if *id == "" {
+    fmt.Print("Usage -columns <col -bool>: Please Specify Columns to Include")
     sortdirection_Cmd.PrintDefaults()
     os.Exit(1)
   } else
   // user passed "status" field
-  if *field == "ascending" {
+  if *field == "ascending" || *field == "ASCENDING" {
     sortStatus = true
   } else
   // user passed "discovered" field
-  if *field == "descending" {
+  if *field == "descending" || *field == "DESCENDING" {
     sortDiscovered = true
   } else {
     // unrecognized field
@@ -365,3 +427,4 @@ func handleSortDirection(sortdirection_Cmd *flag.FlagSet, field *string) {
     os.Exit(1)
   }
 }
+*/
