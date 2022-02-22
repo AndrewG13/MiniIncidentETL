@@ -1,0 +1,9 @@
+[
+  {
+     "id": 1,
+     "name": "Test Name",
+     "discovered": "2018-02-19",
+     "description": "This is the only incident",
+     "status": "New"
+  }
+]

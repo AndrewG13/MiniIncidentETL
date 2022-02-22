@@ -16,36 +16,8 @@
   {
      "id": 3,
      "name": "Lost iPad with Medical Record",
-     "discovered": "2018-04-02",
+     "discovered": "2018-04-01",
      "description": "Nurse misplaced a patient's medical records while in the office.",
      "status": "In Progress"
-  },
-  {
-     "id": 40,
-     "name": "Misdirected Fax",
-     "discovered": "2018-05-02",
-     "description": "Patient's medical records faxed to wrong number.",
-     "status": "In Progress"
-  },
-  {
-     "id": 5,
-     "name": "User Data Compromised",
-     "discovered": "2019-02-19",
-     "description": "Unauthorized access on patient account #552.",
-     "status": "Done"
-  },
-  {
-     "id": 4,
-     "name": "Data Breach",
-     "discovered": "2020-12-11",
-     "description": "Andrew's biscotti recipe leaked online.",
-     "status": "New"
-  },
-  {
-     "id": 0,
-     "name": "Data Breach",
-     "discovered": "2020-10-25",
-     "description": "Andrew's pignoli recipe leaked online.",
-     "status": "Done"
   }
 ]

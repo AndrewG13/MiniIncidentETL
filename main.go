@@ -16,16 +16,32 @@ import (
   "time"
 )
 
+// debug mode: Additional print messages
+var debug bool = false
+
 // CLI flag toggles
 // default settings: No sorting
 var directionAscending bool = true
 var sortDiscovered bool = false
 var sortStatus bool = false
 
+// struct for tracking duplicate commands
+var commandHistory = CommandUsed{false, false, false}
+
 // format for the first line of csv file
 var columnNames []string
-// define columns to include in CSV, default = all
+// columns to include in CSV, default = all
 var columnsFilter = Columns{true, true, true, true, true}
+
+// format of Incident dates
+const dateFormat = "2006-01-02"
+
+// define struct for checking duplicate commands
+type CommandUsed struct {
+  sfield bool
+  sdirection bool
+  cols bool
+}
 
 // columns to include in CSV
 // default settings: Include all
@@ -36,9 +52,6 @@ type Columns struct {
   Include_Desc bool
   Include_Stat bool
 }
-
-// define format of Incident dates
-const dateFormat = "2006-01-02"
 
 // define struct for JSON data
 type Incident struct {
@@ -209,6 +222,10 @@ func filterColumnNames() {
 *  Main
 */
 func main() {
+
+    // log program initiation
+    fmt.Println("\nProgram Started\n")
+
     /*
     *  flags & cmd
     */
@@ -235,60 +252,76 @@ func main() {
     columns_Desc := columns_Cmd.Bool("description", false, "description")
     columns_Stat := columns_Cmd.Bool("status", false, "status")
 
-        /*
-        // test print
-        fmt.Println(len(os.Args))
-        for i := 1; i < len(os.Args); i++ {
-          fmt.Println(os.Args[i])
-        }
-        */
+    if debug {
+      fmt.Println("Arguments:")
+      // print command line arguments
 
-        // check if command-line args were entered
-        if len(os.Args) < 2 {
-          fmt.Println("Running Default Settings\n")
-        } else {
-          // handle correct command
-
-          // determine which user command to run
-          for i := 1; i < len(os.Args); i++ {
-            // check if arg is not a flag
-            if (!strings.Contains(os.Args[i], "-")) {
-
-              if os.Args[i] == "sortfield" {
-                handleSortField(sortfield_Cmd, i, sortfield_Stat, sortfield_Disc)
-              } else
-              if os.Args[i] == "sortdirection" {
-                handleSortDirection(sortdirection_Cmd, i, sortdirection_As, sortdirection_Ds)
-              } else
-              if os.Args[i] == "columns" {
-                handleColumns(columns_Cmd, i, columns_ID, columns_Name, columns_Disc, columns_Desc, columns_Stat)
-              } else {
-                // invalid command
-                fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
-                fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
-                os.Exit(1)
-            }// end invalid check
-          }// end command syntax check
-        }// end command loop
+      //fmt.Println(len(os.Args))
+      for i := 1; i < len(os.Args); i++ {
+        fmt.Println(os.Args[i])
       }
-        /*
-          switch os.Args[1] {
-            case "sortfield":
-              handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
-            case "sortdirection":
-              handleSortDirection(sortdirection_Cmd, sortdirection_As, sortdirection_Ds)
-            case "columns":
-              handleColumns(columns_Cmd, columns_ID, columns_Name, columns_Disc, columns_Desc, columns_Stat)
-            default:
-              fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
-              fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
+      fmt.Println("")
+    }
+
+    // todo: refactor repetition of duplicate command checks below
+
+    // check if command-line args were entered
+    if len(os.Args) < 2 {
+      fmt.Println("Running Default Settings\n")
+    } else {
+      // handle correct command
+        // determine which user command to run
+      for i := 1; i < len(os.Args); i++ {
+        // check if arg is not a flag
+        if (!strings.Contains(os.Args[i], "-")) {
+
+            if os.Args[i] == "sortfield" {
+              if !commandHistory.sfield {
+                handleSortField(sortfield_Cmd, i, sortfield_Stat, sortfield_Disc)
+                commandHistory.sfield = true
+              } else {
+                // command used already, exit
+                fmt.Println("Error: Duplicate sortfield Command\n")
+                os.Exit(1)
+              }
+          } else
+
+          if os.Args[i] == "sortdirection" {
+            if !commandHistory.sdirection {
+              handleSortDirection(sortdirection_Cmd, i, sortdirection_As, sortdirection_Ds)
+              commandHistory.sdirection = true
+            } else {
+              // command used already, exit
+              fmt.Println("Error: Duplicate sortdirection Command\n")
               os.Exit(1)
-          }
-        }
-      */
+            }
+          } else
 
-      flag.Parse()
+          if os.Args[i] == "columns" {
+            if !commandHistory.cols {
+              handleColumns(columns_Cmd, i, columns_ID, columns_Name, columns_Disc, columns_Desc, columns_Stat)
+              commandHistory.cols = true
+            } else {
+              // command used already, exit
+              fmt.Println("Error: Duplicate columns Command\n")
+              os.Exit(1)
+            }
+          } else {
+            // invalid command
+            fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
+            fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
+            os.Exit(1)
+          }// end invalid check
+        }// end command syntax check
+      }// end command loop
+    }
 
+    flag.Parse()
+
+
+    /*
+    *  JSON Handling
+    */
     // open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
 
@@ -296,10 +329,14 @@ func main() {
     if err != nil {
       fmt.Println("Error Accessing File:\n")
       fmt.Println(err)
-      fmt.Println("\nEnsure File is in 'input' folder & named 'data.json'.")
+      fmt.Println("\nEnsure File is in 'input' directory & named 'data.json'.")
     } else {
       // file access successful!
-      fmt.Println("Input File Successfully Accessed")
+      if debug {
+        fmt.Println("JSON File Successfully Accessed")
+      } else {
+        fmt.Println("Input Data Valid")
+      }
 
     // defer closing the file to allow parsing
     defer jsonFile.Close()
@@ -317,8 +354,8 @@ func main() {
       fmt.Println("\nEnsure File follows expected JSON format.")
     } else {
 
-      // test printing output
-      /*
+    // prints JSON data
+    /*
       for i := 0; i < len(ilist.IncidentList); i++ {
         fmt.Println("id: " + strconv.Itoa( ilist.IncidentList[i].Id ))
         fmt.Println("name: " + ilist.IncidentList[i].Name)
@@ -326,76 +363,89 @@ func main() {
         fmt.Println("description: " + ilist.IncidentList[i].Description)
         fmt.Println("status: " + ilist.IncidentList[i].Status)
       }
-      */
+    */
 
-      // check if sorting is necessary (A size of 1 is sorted)
-      if len(ilist.IncidentList) > 1 {
-        // if user entered sorting preference, call requested sorting mode
-        if sortStatus {
-          sortOnStat(ilist)
-        } else
-        if sortDiscovered {
-          sortOnDisc(ilist)
+
+    // check if sorting is necessary (A size of 1 is sorted)
+    if len(ilist.IncidentList) > 1 {
+      // if user entered sorting preference, call requested sorting mode
+      if sortStatus {
+        sortOnStat(ilist)
+      } else
+      if sortDiscovered {
+        sortOnDisc(ilist)
+      }
+    }
+
+    /*
+    *  CSV Writing
+    */
+
+    // create csv file in 'output' folder
+    csvFile, err := os.Create("output/data.csv")
+
+    // if file creation error occurs, print error
+    if err != nil {
+      fmt.Println("Error Creating CSV File:\n")
+      fmt.Println(err)
+      fmt.Println("\nEnsure ")
+    } else {
+      // file creation successful
+
+      // defer CSV file from closing
+      defer csvFile.Close()
+      // create writer to write to output file
+      writer := csv.NewWriter(csvFile)
+
+      // filter column titles
+      filterColumnNames()
+      // write the column names as first line
+      writer.Write(columnNames)
+
+      // write all JSON data into output CSV file
+      for _, dataEntry := range ilist.IncidentList {
+        var csvRow []string
+        // filter attributes
+        if columnsFilter.Include_Id {
+          csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
         }
+        if columnsFilter.Include_Name {
+          csvRow = append(csvRow, dataEntry.Name)
+        }
+        if columnsFilter.Include_Disc {
+          csvRow = append(csvRow, dataEntry.Discovered)
+        }
+        if columnsFilter.Include_Desc {
+          csvRow = append(csvRow, dataEntry.Description)
+        }
+        if columnsFilter.Include_Stat {
+          csvRow = append(csvRow, dataEntry.Status)
+        }
+        writer.Write(csvRow)
       }
 
-      // create csv file in 'output' folder
-      csvFile, err := os.Create("output/data.csv")
-
-      // if file creation error occurs, print error
-      if err != nil {
-        fmt.Println("Error Creating CSV File:\n")
-        fmt.Println(err)
-        fmt.Println("\nEnsure ")
+      if debug {
+        fmt.Println("CSV File Successfully Created")
       } else {
-        // file creation successful
+        fmt.Println("Output File Created, Check 'output' Directory")
+      }
 
-        // defer CSV file from closing
-        defer csvFile.Close()
-        // create writer to write to output file
-        writer := csv.NewWriter(csvFile)
-
-        // filter column titles
-        filterColumnNames()
-        // write the column names as first line
-        writer.Write(columnNames)
-
-        // write all JSON data into output CSV file
-        for _, dataEntry := range ilist.IncidentList {
-          var csvRow []string
-          // filter attributes
-          if columnsFilter.Include_Id {
-            csvRow = append(csvRow, strconv.Itoa( dataEntry.Id ))
-          }
-          if columnsFilter.Include_Name {
-            csvRow = append(csvRow, dataEntry.Name)
-          }
-          if columnsFilter.Include_Disc {
-            csvRow = append(csvRow, dataEntry.Discovered)
-          }
-          if columnsFilter.Include_Desc {
-            csvRow = append(csvRow, dataEntry.Description)
-          }
-          if columnsFilter.Include_Stat {
-            csvRow = append(csvRow, dataEntry.Status)
-          }
-          writer.Write(csvRow)
-        }
-
-        fmt.Println("Output File Successfully Created")
-        writer.Flush()
+      writer.Flush()
 
       } // end CSV creation logic
     } // end JSON reading logic
   } // end JSON file access logic
 
-  if directionAscending {
-    fmt.Println("\n     Direction: Ascending")
-  } else {
-    fmt.Println("\n     Direction: Descending")
+  if debug {
+    // print sorting variables
+    if directionAscending {
+      fmt.Println("\n     Direction: Ascending")
+    } else {
+      fmt.Println("\n     Direction: Descending")
+    }
+    fmt.Println("    sortStatus:", sortStatus)
+    fmt.Println("sortDiscovered:", sortDiscovered)
   }
-  fmt.Println("    sortStatus:", sortStatus)
-  fmt.Println("sortDiscovered:", sortDiscovered)
 
   // log program termination
   fmt.Println("\nProgram Terminated")

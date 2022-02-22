@@ -1,0 +1,58 @@
+[
+  {
+     "id": 2,
+     "name": "Misdirected Fax",
+     "discovered": "2018-04-02",
+     "description": "Patient's medical records faxed to wrong number.",
+     "status": "New"
+  },
+  {
+     "id": 1,
+     "name": "Lost Laptop",
+     "discovered": "2018-02-19",
+     "description": "Doctor lost her laptop while on vacation.",
+     "status": "Done"
+  },
+  {
+     "id": 3,
+     "name": "Lost iPad with Medical Record",
+     "discovered": "2018-04-02",
+     "description": "Nurse misplaced a patient's medical records while in the office.",
+     "status": "In Progress"
+  },
+  {
+     "id": 40,
+     "name": "Misdirected Fax",
+     "discovered": "2018-05-02",
+     "description": "Patient's medical records faxed to wrong number.",
+     "status": "In Progress"
+  },
+  {
+     "id": 5,
+     "name": "User Data Compromised",
+     "discovered": "2019-02-19",
+     "description": "Unauthorized access on patient account #552.",
+     "status": "Done"
+  },
+  {
+     "id": 4,
+     "name": "Data Breach",
+     "discovered": "2020-12-11",
+     "description": "Andrew's biscotti recipe leaked online. For shame!",
+     "status": "New"
+  },
+  {
+     "id": 100,
+     "name": "Misdirected Email",
+     "discovered": "2022-01-02",
+     "description": "Nick's cat stepped on the keyboard & accidentally sent an email to the President",
+     "status": "Done"
+  },
+  {
+     "id": 0,
+     "name": "Data Breach",
+     "discovered": "2020-10-25",
+     "description": "Andrew's pignoli recipe leaked online. NOOOO",
+     "status": "Done"
+  }
+]
