@@ -10,6 +10,7 @@ import (
   // Flags & Commands
   "flag"
   // Utilities
+  "strings"
   "os"
   "strconv"
   "time"
@@ -247,6 +248,30 @@ func main() {
           fmt.Println("Running Default Settings\n")
         } else {
           // handle correct command
+
+          // determine which user command to run
+          for i := 1; i < len(os.Args); i++ {
+            // check if arg is not a flag
+            if (!strings.Contains(os.Args[i], "-")) {
+
+              if os.Args[i] == "sortfield" {
+                handleSortField(sortfield_Cmd, i, sortfield_Stat, sortfield_Disc)
+              } else
+              if os.Args[i] == "sortdirection" {
+                handleSortDirection(sortdirection_Cmd, i, sortdirection_As, sortdirection_Ds)
+              } else
+              if os.Args[i] == "columns" {
+                handleColumns(columns_Cmd, i, columns_ID, columns_Name, columns_Disc, columns_Desc, columns_Stat)
+              } else {
+                // invalid command
+                fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
+                fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
+                os.Exit(1)
+            }// end invalid check
+          }// end command syntax check
+        }// end command loop
+      }
+        /*
           switch os.Args[1] {
             case "sortfield":
               handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
@@ -260,8 +285,9 @@ func main() {
               os.Exit(1)
           }
         }
-      flag.Parse()
+      */
 
+      flag.Parse()
 
     // open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
@@ -376,9 +402,9 @@ func main() {
 
 }// end main
 
-func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
+func handleSortField(sortfield_Cmd *flag.FlagSet, comInd int, status *bool, disc *bool) {
   // parse command args
-  sortfield_Cmd.Parse(os.Args[2:])
+  sortfield_Cmd.Parse(os.Args[comInd+1:comInd+2])
   // check if any args were passed in
   if !*status && !*disc {
     fmt.Print("Usage sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
@@ -402,9 +428,13 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
   }
 }
 
-func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) {
+func jj(i int) {
+
+}
+
+func handleSortDirection(sortdirection_Cmd *flag.FlagSet, comInd int, asc *bool, dsc *bool) {
   // parse command args
-  sortdirection_Cmd.Parse(os.Args[2:])
+  sortdirection_Cmd.Parse(os.Args[comInd+1:comInd+2])
   // check if any args were passed in
   if !*asc && !*dsc {
     fmt.Print("Usage sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
@@ -427,10 +457,10 @@ func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) 
 
 }
 
-func handleColumns(columns_Cmd *flag.FlagSet, id *bool, name *bool, disc *bool, desc *bool, stat *bool) {
+func handleColumns(columns_Cmd *flag.FlagSet, comInd int, id *bool, name *bool, disc *bool, desc *bool, stat *bool) {
   var unrecognized bool = true
   // parse command args
-  columns_Cmd.Parse(os.Args[2:])
+  columns_Cmd.Parse(os.Args[comInd+1:])
   // check if any args were passed in
   if !*id && !*name && !*disc && !*desc && !*stat {
     fmt.Print("Usage columns <attributes>: Please Specify at least One Attribute [id, name, discovered, description, status]\n")
