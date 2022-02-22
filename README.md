@@ -42,5 +42,5 @@ Error Examples (for testing purposes) -
 ## Future Development Plans:  
 - Improve the sorting algorithms used for sortfield (Discovered: Line 92 & Status: Line 112)
 - Improve duplicate command verification (it's repetitive, starting at Line 284-307)
-- Implement the command `-notdone`, to filter only Incidents not done/completed  
-- Implement the command `-alldone`, to filter onlg Incidents done/completed  
+- Implement additional command `-notdone`, to filter only Incidents not done/completed  
+- Implement additional command `-alldone`, to filter only Incidents done/completed  
