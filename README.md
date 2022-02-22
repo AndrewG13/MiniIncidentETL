@@ -31,7 +31,7 @@ Enables additional print statements to verify program behaviour
 Helpful Examples - 
 - `go run main.go`
 - `go run main.go sortfield -status`  
-- `go run main.go sortfield -discovered` sortdirection -ascending`  
+- `go run main.go sortfield -discovered sortdirection -ascending`  
 - `go run main.go columns -id -status -name sortdirection -descending sortfield -status`
   
 Error Examples (for testing purposes) -
