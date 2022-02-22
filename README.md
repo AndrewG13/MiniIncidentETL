@@ -26,13 +26,13 @@ Available Commands -
 ## Debug Mode:  
 Enables additional print statements to verify program behaviour
 - Line 20: `var debug bool = false`
-- Enable by changing to `true`  
+  Enable by changing to `true`  
   
 Helpful Examples - 
 - `go run main.go`
 - `go run main.go sortfield -status`  
 - `go run main.go sortfield -discovered` sortdirection -ascending  
-- `go run main.go columns -id -status -name sortdirection -descending sortfield -status
+- `go run main.go columns -id -status -name sortdirection -descending sortfield -status`
   
 Error Examples (for testing purposes) -
 - Invalid tag: `go run main.go sortfield -nah`  
