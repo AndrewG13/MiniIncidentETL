@@ -215,8 +215,8 @@ func main() {
         // -sortfield
         //  Specify 'Discovered' or 'Status' to sort on
         sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-        sortfield_Stat := sortfield_Cmd.String("status", "", "status")
-        sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
+        sortfield_Stat := sortfield_Cmd.Bool("status", false, "status")
+        sortfield_Disc := sortfield_Cmd.Bool("discovered", false, "discovered")
 
         // -sortdirection
         //  Specify 'Ascending' or 'Descending' Direction to sort by
@@ -364,23 +364,21 @@ func main() {
 
 }// end main
 
-func handleSortField(sortfield_Cmd *flag.FlagSet, status *string, disc *string) {
+func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
   // parse command args
   sortfield_Cmd.Parse(os.Args[2:])
-  fmt.Println("FIELD:")
   // check if any args were passed in
-  if *status == "" && *disc == "" {
+  if !*status && !*disc {
     fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
   // user passed "status" field
-  if *status == "status" || *status == "STATUS" {
-    fmt.Println("status is passed in")
+  if *status {
     sortStatus = true
   } else
   // user passed "discovered" field
-  if *disc == "discovered" || *disc == "DISCOVERED"{
+  if *disc {
     sortDiscovered = true
   } else {
     // unrecognized field
