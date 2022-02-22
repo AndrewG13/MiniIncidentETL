@@ -17,15 +17,15 @@ import (
 
 // CLI flag toggles
 // default settings: No sorting/direction
-var directionAscending bool = false
+var directionAscending bool = true
 var sortDiscovered bool = false
 var sortStatus bool = false
 
 // format for the first line of csv file
 // todo: improve this, have the actual json key names used
-var columnNames = []string {"ID", "Name", "Discovered", "Description", "Status"}
+var columnNames []string
 // define columns to include in CSV, default = all
-var columnsFilter = Columns{true, true, true, true, true}
+var columnsFilter = Columns{true, false, true, false, true}
 
 // columns to include in CSV
 // default settings: Include all
@@ -39,12 +39,6 @@ type Columns struct {
 
 // define format of Incident dates
 const dateFormat = "2006-01-02"
-
-
-
-// Notes:
-// flag for CLI
-// https://pkg.go.dev/flag
 
 // define struct for JSON data
 type Incident struct {
@@ -181,20 +175,20 @@ func compareDates(in1, in2 Incident) bool {
 *    determines which column 'titles' to write to CSV
 */
 func filterColumnNames() {
-  if !columnsFilter.Include_Id {
-    columnNames[0] = ""
+  if columnsFilter.Include_Id {
+    columnNames = append(columnNames, "ID")
   }
-  if !columnsFilter.Include_Name {
-    columnNames[1] = ""
+  if columnsFilter.Include_Name {
+    columnNames = append(columnNames, "Name")
   }
-  if !columnsFilter.Include_Disc {
-    columnNames[2] = ""
+  if columnsFilter.Include_Disc {
+    columnNames = append(columnNames, "Discovered")
   }
-  if !columnsFilter.Include_Desc {
-    columnNames[3] = ""
+  if columnsFilter.Include_Desc {
+    columnNames = append(columnNames, "Description")
   }
-  if !columnsFilter.Include_Stat {
-    columnNames[4] = ""
+  if columnsFilter.Include_Stat {
+    columnNames = append(columnNames, "Status")
   }
 }
 
@@ -202,12 +196,6 @@ func filterColumnNames() {
 *  Main
 */
 func main() {
-    // format for the first line of csv file
-    // todo: improve this, have the actual json key names used
-    columnNames := []string {"ID", "Name", "Discovered", "Description", "Status"}
-    // define columns to include in CSV, default = all
-    columnsFilter := Columns{true, true, true, true, true}
-
     /*
     *  flags & cmd
     */
@@ -234,6 +222,12 @@ func main() {
         columns_Desc := columns_Cmd.bool("description", false, "description")
         columns_Stat := columns_Cmd.bool("status", false, "status")
         */
+
+        // test print
+        fmt.Println(len(os.Args))
+        for i := 0; i < len(os.Args); i++ {
+          fmt.Println(os.Args[i])
+        }
 
         // check if command-line args were entered
         if len(os.Args) < 2 {
@@ -354,10 +348,13 @@ func main() {
     } // end JSON reading logic
   } // end JSON file access logic
 
-  //fmt.Println(sortfieldPtr, sortdirectionPtr)
-  fmt.Println("\nAscending Mode: ", directionAscending)
-  fmt.Println("    sortStatus: ", sortStatus)
-  fmt.Println("sortDiscovered: ", sortDiscovered)
+  if directionAscending {
+    fmt.Println("\n     Direction: Ascending")
+  } else {
+    fmt.Println("\n     Direction: Descending")
+  }
+  fmt.Println("    sortStatus:", sortStatus)
+  fmt.Println("sortDiscovered:", sortDiscovered)
 
   // log program termination
   fmt.Println("\nProgram Terminated")
@@ -376,10 +373,12 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
   // user passed "status" field
   if *status {
     sortStatus = true
+    sortDiscovered = false // assurance
   } else
   // user passed "discovered" field
   if *disc {
     sortDiscovered = true
+    sortStatus = false // also assurance
   } else {
     // unrecognized field
     fmt.Print("Usage -sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]\n")
@@ -391,7 +390,6 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
 func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) {
   // parse command args
   sortdirection_Cmd.Parse(os.Args[2:])
-  // check if any args were passed in
   // check if any args were passed in
   if !*asc && !*dsc {
     fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
