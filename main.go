@@ -235,13 +235,22 @@ func main() {
         columns_Stat := columns_Cmd.bool("status", false, "status")
         */
 
-        switch os.Args[1] {
-          case "sortfield":
-            handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
-          case "sortdirection":
-            handleSortDirection(sortdirection_Cmd, sortdirection_Arg)
+        // check if command-line args were entered
+        if len(os.Args) < 2 {
+          fmt.Println("Running Default Settings\n")
+        } else {
+          // handle correct command
+          switch os.Args[1] {
+            case "sortfield":
+              handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
+            case "sortdirection":
+              handleSortDirection(sortdirection_Cmd, sortdirection_Arg)
+            default:
+              fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
+              fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
+              os.Exit(1)
+          }
         }
-
       flag.Parse()
 
 
