@@ -212,33 +212,35 @@ func main() {
     *  flags & cmd
     */
 
-        // -sortfield
-        //  Specify 'Discovered' or 'Status' to sort on
-        sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-        sortfield_Stat := sortfield_Cmd.Bool("status", false, "Sort Incidents by Status")
-        sortfield_Disc := sortfield_Cmd.Bool("discovered", false, "Sort Incidents by Discovered date")
+    // sortfield Command
+    //  Specify 'Discovered' or 'Status' to sort on
+    sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
+    sortfield_Stat := sortfield_Cmd.Bool("status", false, "Sort Incidents by Status")
+    sortfield_Disc := sortfield_Cmd.Bool("discovered", false, "Sort Incidents by Discovered date")
 
-        // -sortdirection
-        //  Specify 'Ascending' or 'Descending' Direction to sort by
-        sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
-        sortdirection_As := sortdirection_Cmd.Bool("ascending", false, "Sort Incidents in Ascending order")
-        sortdirection_Ds := sortdirection_Cmd.Bool("descending", false, "Sort Incidents in Descending order")
+    // sortdirection Command
+    //  Specify 'Ascending' or 'Descending' Direction to sort by
+    sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
+    sortdirection_As := sortdirection_Cmd.Bool("ascending", false, "Sort Incidents in Ascending order")
+    sortdirection_Ds := sortdirection_Cmd.Bool("descending", false, "Sort Incidents in Descending order")
 
 
-        // -columns
-        //  Specify columns to exclusively include
-        columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
-        columns_ID   := columns_Cmd.Bool("id", false, "id")
-        columns_Name := columns_Cmd.Bool("name", false, "name")
-        columns_Disc := columns_Cmd.Bool("discovered", false, "discovered")
-        columns_Desc := columns_Cmd.Bool("description", false, "description")
-        columns_Stat := columns_Cmd.Bool("status", false, "status")
+    // columns Command
+    //  Specify columns to exclusively include
+    columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
+    columns_ID   := columns_Cmd.Bool("id", false, "id")
+    columns_Name := columns_Cmd.Bool("name", false, "name")
+    columns_Disc := columns_Cmd.Bool("discovered", false, "discovered")
+    columns_Desc := columns_Cmd.Bool("description", false, "description")
+    columns_Stat := columns_Cmd.Bool("status", false, "status")
 
+        /*
         // test print
         fmt.Println(len(os.Args))
-        for i := 0; i < len(os.Args); i++ {
+        for i := 1; i < len(os.Args); i++ {
           fmt.Println(os.Args[i])
         }
+        */
 
         // check if command-line args were entered
         if len(os.Args) < 2 {
