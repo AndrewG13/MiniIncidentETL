@@ -16,16 +16,15 @@ import (
 )
 
 // CLI flag toggles
-// default settings: No sorting/direction
+// default settings: No sorting
 var directionAscending bool = true
 var sortDiscovered bool = false
 var sortStatus bool = false
 
 // format for the first line of csv file
-// todo: improve this, have the actual json key names used
 var columnNames []string
 // define columns to include in CSV, default = all
-var columnsFilter = Columns{true, false, true, false, true}
+var columnsFilter = Columns{true, true, true, true, true}
 
 // columns to include in CSV
 // default settings: Include all
@@ -61,6 +60,19 @@ type IncidentList struct {
 func swap(list IncidentList, i int, j int) {
   list.IncidentList[i], list.IncidentList[j] = list.IncidentList[j], list.IncidentList[i]
   return
+}
+
+/*
+*  Reset Columns Function
+*    helper function for columns Command
+*    sets all column values to false
+*/
+func resetColumns() {
+  columnsFilter.Include_Id = false
+  columnsFilter.Include_Name = false
+  columnsFilter.Include_Disc = false
+  columnsFilter.Include_Desc = false
+  columnsFilter.Include_Stat = false
 }
 
 /*
@@ -212,16 +224,15 @@ func main() {
         sortdirection_As := sortdirection_Cmd.Bool("ascending", false, "Sort Incidents in Ascending order")
         sortdirection_Ds := sortdirection_Cmd.Bool("descending", false, "Sort Incidents in Descending order")
 
-        /*
+
         // -columns
         //  Specify columns to exclusively include
         columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
-        columns_ID   := columns_Cmd.bool("id", false, "id")
-        columns_Name := columns_Cmd.bool("name", false, "name")
-        columns_Disc := columns_Cmd.bool("discovered", false, "discovered")
-        columns_Desc := columns_Cmd.bool("description", false, "description")
-        columns_Stat := columns_Cmd.bool("status", false, "status")
-        */
+        columns_ID   := columns_Cmd.Bool("id", false, "id")
+        columns_Name := columns_Cmd.Bool("name", false, "name")
+        columns_Disc := columns_Cmd.Bool("discovered", false, "discovered")
+        columns_Desc := columns_Cmd.Bool("description", false, "description")
+        columns_Stat := columns_Cmd.Bool("status", false, "status")
 
         // test print
         fmt.Println(len(os.Args))
@@ -239,6 +250,8 @@ func main() {
               handleSortField(sortfield_Cmd, sortfield_Stat, sortfield_Disc)
             case "sortdirection":
               handleSortDirection(sortdirection_Cmd, sortdirection_As, sortdirection_Ds)
+            case "columns":
+              handleColumns(columns_Cmd, columns_ID, columns_Name, columns_Disc, columns_Desc, columns_Stat)
             default:
               fmt.Println("Error: ", os.Args[1] ," Unrecognized\n")
               fmt.Println("Available Commands: \nsortfield <field> \nsortdirection <direction> \ncolumns <cols>\n")
@@ -366,7 +379,7 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
   sortfield_Cmd.Parse(os.Args[2:])
   // check if any args were passed in
   if !*status && !*disc {
-    fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
+    fmt.Print("Usage sortfield <field>: Please Specify Field to Sort [discovered, status]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
@@ -381,7 +394,7 @@ func handleSortField(sortfield_Cmd *flag.FlagSet, status *bool, disc *bool) {
     sortStatus = false // also assurance
   } else {
     // unrecognized field
-    fmt.Print("Usage -sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]\n")
+    fmt.Print("Usage sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   }
@@ -392,7 +405,7 @@ func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) 
   sortdirection_Cmd.Parse(os.Args[2:])
   // check if any args were passed in
   if !*asc && !*dsc {
-    fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
+    fmt.Print("Usage sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   } else
@@ -405,34 +418,56 @@ func handleSortDirection(sortdirection_Cmd *flag.FlagSet, asc *bool, dsc *bool) 
     directionAscending = false // I like to ensure :)
   } else {
     // unrecognized field
-    fmt.Print("Usage -sortdirection <direction>: Field Unrecognized. Available Arguments: [ascending, descending]\n")
+    fmt.Print("Usage sortdirection <direction>: Field Unrecognized. Available Arguments: [ascending, descending]\n")
     //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
   }
 
 }
-/*
-func handleColumns(columns_Cmd *flag.FlagSet, id *string, name *string, disc string, desc *string, stat *string) {
+
+func handleColumns(columns_Cmd *flag.FlagSet, id *bool, name *bool, disc *bool, desc *bool, stat *bool) {
+  var unrecognized bool = true
   // parse command args
-  columns_Cmd.Parse(os.Args[:4])
+  columns_Cmd.Parse(os.Args[2:])
   // check if any args were passed in
-  if *id == "" {
-    fmt.Print("Usage -columns <col -bool>: Please Specify Columns to Include")
-    sortdirection_Cmd.PrintDefaults()
+  if !*id && !*name && !*disc && !*desc && !*stat {
+    fmt.Print("Usage columns <attributes>: Please Specify at least One Attribute [id, name, discovered, description, status]\n")
+    //sortfield_Cmd.PrintDefaults()
     os.Exit(1)
-  } else
-  // user passed "status" field
-  if *field == "ascending" || *field == "ASCENDING" {
-    sortStatus = true
-  } else
-  // user passed "discovered" field
-  if *field == "descending" || *field == "DESCENDING" {
-    sortDiscovered = true
   } else {
-    // unrecognized field
-    fmt.Print("Usage -sortdirection <direction>: Direction Unrecognized. Available Arguments: [ascending, descending]")
-    sortdirection_Cmd.PrintDefaults()
-    os.Exit(1)
+    // reset all columns, to exclude unwanted ones
+    resetColumns()
+    // user passed "id" field
+    if *id {
+      columnsFilter.Include_Id = true
+      unrecognized = false
+    }
+    // user passed "name" field
+    if *name {
+      columnsFilter.Include_Name = true
+      unrecognized = false
+    }
+    // user passed "discovered" field
+    if *disc {
+      columnsFilter.Include_Disc = true
+      unrecognized = false
+    }
+    // user passed "description" field
+    if *desc {
+      columnsFilter.Include_Desc = true
+      unrecognized = false
+    }
+    // user passed "status" field
+    if *stat {
+      columnsFilter.Include_Stat = true
+      unrecognized = false
+    }
+
+    if unrecognized {
+      // unrecognized field
+      fmt.Print("Usage columns <attributes>: Field Unrecognized. Available Arguments: [id, name, discovered, description, status]\n")
+      //sortfield_Cmd.PrintDefaults()
+      os.Exit(1)
+    }
   }
 }
-*/
