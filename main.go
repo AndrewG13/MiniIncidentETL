@@ -1,24 +1,46 @@
 package main
 
 import (
+  // Formating & Printing
   "fmt"
+  // Encoding & File
   "encoding/json"
   "encoding/csv"
   "io/ioutil"
+  // Flags & Commands
+  "flag"
+  // Utilities
   "os"
   "strconv"
   "time"
-  "flag"
 )
 
 // CLI flag toggles
-// default settings: Sort ascending, by date discovered (ignore status)
+// default settings: No sorting/direction
 var directionAscending bool = false
-var sortDiscovered bool = true
+var sortDiscovered bool = false
 var sortStatus bool = false
 
+// format for the first line of csv file
+// todo: improve this, have the actual json key names used
+var columnNames = []string {"ID", "Name", "Discovered", "Description", "Status"}
+// define columns to include in CSV, default = all
+var columnsFilter = Columns{true, true, true, true, true}
+
+// columns to include in CSV
+// default settings: Include all
+type Columns struct {
+  Include_Id   bool
+  Include_Name bool
+  Include_Disc bool
+  Include_Desc bool
+  Include_Stat bool
+}
+
 // define format of Incident dates
-const dateFormat = "2006-01-02" // special date?
+const dateFormat = "2006-01-02"
+
+
 
 // Notes:
 // flag for CLI
@@ -35,7 +57,7 @@ type Incident struct {
 
 // define struct for JSON array
 type IncidentList struct {
-  IncidentList []Incident `json:""` // key/value code may not be necessary
+  IncidentList []Incident `json:""` // `json:""` may not be necessary
 }
 
 /*
@@ -49,18 +71,19 @@ func swap(list IncidentList, i int, j int) {
 
 /*
 *  Sort On Discovered Function
-*    Applies sorting based on date discovered
+*    Sorts Incidents based on date discovered
+*    Algorithm: Selection Sort
 */
 func sortOnDisc(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     smallest := i
     for j := i + 1; j < len(list.IncidentList); j++ {
-      // compare dates
+      // check if inner date comes before outer date
       if compareDates(list.IncidentList[smallest], list.IncidentList[j]) {
         smallest = j
       }
     }
-    // swap current index i with smallest found element
+    // swap current index i with earliest found date
     swap(list, smallest, i)
   }
   return
@@ -68,20 +91,21 @@ func sortOnDisc(list IncidentList) {
 
 /*
 *  Sort On Status Function
-*    Applies sorting based on Incident status
-*    Algorithm: In-place Selection Sort
+*    Sorts Incidents based on their status
+*    Algorithm: Selection Sort
 */
 func sortOnStat(list IncidentList) {
   for i := 0; i < len(list.IncidentList); i++ {
     // keep track of current smallest index
+    // assume current index in outerloop is initially smallest
     smallest := i
     for j := i + 1; j < len(list.IncidentList); j++ {
-      // check statuses
+      // check if inner element < outer element
       if compareStatus(list.IncidentList[smallest], list.IncidentList[j]) {
         smallest = j
       }
     }
-    // swap current index i with smallest found element
+    // swap current index i with 'smallest' found status
     swap(list, smallest, i)
   }
   return
@@ -96,7 +120,7 @@ func compareStatus(in1, in2 Incident) bool {
   // determine value of status for each Incident
   inVal1 := statusValue(in1)
   inVal2 := statusValue(in2)
-
+  // determine direction
   if directionAscending {
     return inVal1 <= inVal2
   } else {
@@ -107,10 +131,10 @@ func compareStatus(in1, in2 Incident) bool {
 /*
 *  Status Value Function
 *    returns the value of the Incident's status
-*    This is used for comparison purposes
-*    New = 3
+*    Comparison Scale:
+*    New         = 3
 *    In Progress = 2
-*    Done = 1
+*    Done        = 1
 */
 func statusValue(in Incident) int {
   // return correct Status numeric value
@@ -133,7 +157,8 @@ func compareDates(in1, in2 Incident) bool {
   // parse dates for each Incident
   inDate1, _ := time.Parse(dateFormat, in1.Discovered)
   inDate2, _ := time.Parse(dateFormat, in2.Discovered)
-  // Date comparison
+
+  // Date comparison logic
   // https://stackoverflow.com/questions/45024526/comparing-two-dates-without-taking-time-into-account
   oneDay := 24 * time.Hour
 	inDate1 = inDate1.Truncate(oneDay)
@@ -141,6 +166,7 @@ func compareDates(in1, in2 Incident) bool {
   // numeric result of both dates compared
 	before := inDate1.Sub(inDate2)
 
+  // determine direction
   if directionAscending {
     // in1 is before in2
     return before > 0
@@ -150,6 +176,10 @@ func compareDates(in1, in2 Incident) bool {
   }
 }
 
+func filterColumnNames() {
+  
+}
+
 /*
 *  Main
 */
@@ -157,9 +187,10 @@ func main() {
     // format for the first line of csv file
     // todo: improve this, have the actual json key names used
     columnNames := []string {"ID", "Name", "Discovered", "Description", "Status"}
-    // acceptable sort directions
+    // define columns to include in CSV, default = all
+    columnsFilter := Columns{true, true, true, true, true}
 
-    // Open the JSON data file for usage
+    // open the JSON data file for usage
     jsonFile, err := os.Open("input/data.json")
 
     // if file not found, print error
@@ -170,7 +201,6 @@ func main() {
     } else {
       // file access successful!
       fmt.Println("Input File Successfully Accessed")
-
 
     // defer closing the file to allow parsing
     defer jsonFile.Close()
@@ -240,9 +270,10 @@ func main() {
         }
         fmt.Println("Output File Successfully Created")
         writer.Flush()
-      }
-    }
-  }
+
+      } // end CSV creation logic
+    } // end JSON reading logic
+  } // end JSON file access logic
 
 /*
 *  flags & cmd
@@ -250,15 +281,24 @@ func main() {
 
     // -sortfield
     //  Specify 'Discovered' or 'Status' to sort on
-    sortfieldCmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
-    sortfieldStat := sortfieldCmd.String("status", "", "status")
-    sortfieldDisc := sortfieldCmd.String("discovered", "", "discovered")
+    sortfield_Cmd := flag.NewFlagSet("sortfield", flag.ExitOnError)
+    sortfield_Stat := sortfield_Cmd.String("status", "", "status")
+    sortfield_Disc := sortfield_Cmd.String("discovered", "", "discovered")
 
     // -sortdirection
     //  Specify 'Ascending' or 'Descending' Direction to sort by
-    sortdirectionCmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
-    sortdirectionAs := sortdirectionCmd.String("ascending", "", "ascending")
-    sortdirectionDs := sortdirectionCmd.String("descending", "", "descending")
+    sortdirection_Cmd := flag.NewFlagSet("sortdirection", flag.ExitOnError)
+    sortdirection_As := sortdirection_Cmd.String("ascending", "", "ascending")
+    sortdirection_Ds := sortdirection_Cmd.String("descending", "", "descending")
+
+    // -columns
+    //  Specify columns to exclusively include
+    columns_Cmd := flag.NewFlagSet("columns", flag.ExitOnError)
+    columns_ID   := columns_Cmd.String("id", "", "id")
+    columns_Name := columns_Cmd.String("name", "", "name")
+    columns_Disc := columns_Cmd.String("discovered", "", "discovered")
+    columns_Desc := columns_Cmd.String("description", "", "description")
+    columns_Stat := columns_Cmd.String("status", "", "status")
 
     switch os.Args[1] {
       case "sortfield":
@@ -278,10 +318,50 @@ fmt.Println("sortDiscovered: ", sortDiscovered)
 fmt.Println("\nProgram Terminated")
 }
 
-func handleSortField(sortfieldCmd) {
-
+func handleSortField(sortfield_Cmd *flag.FlagSet, field *string) {
+  // parse command args
+  sortfield_Cmd.Parse(os.Args[1])
+  // check if any args were passed in
+  if *field == "" {
+    fmt.Print("Usage -sortfield <field>: Please Specify Field to Sort [discovered, status]")
+    sortfield_Cmd.PrintDefaults()
+    os.Exit(1)
+  } else
+  // user passed "status" field
+  if *field == "status" {
+    sortStatus = true
+  } else
+  // user passed "discovered" field
+  if *field == "discovered" {
+    sortDiscovered = true
+  } else {
+    // unrecognized field
+    fmt.Print("Usage -sortfield <field>: Field Unrecognized. Available Arguments: [discovered, status]")
+    sortfield_Cmd.PrintDefaults()
+    os.Exit(1)
+  }
 }
 
-func handleSortDirection(sortdirectionCmd *flag.FlagSet, status *string, discovered *string) {
-
+func handleSortDirection(sortdirection_Cmd *flag.FlagSet, field *string) {
+  // parse command args
+  sortdirection_Cmd.Parse(os.Args[0])
+  // check if any args were passed in
+  if *field == "" {
+    fmt.Print("Usage -sortdirection <direction>: Please Specify Direction to Sort [ascending, descending]")
+    sortdirection_Cmd.PrintDefaults()
+    os.Exit(1)
+  } else
+  // user passed "status" field
+  if *field == "ascending" {
+    sortStatus = true
+  } else
+  // user passed "discovered" field
+  if *field == "descending" {
+    sortDiscovered = true
+  } else {
+    // unrecognized field
+    fmt.Print("Usage -sortdirection <direction>: Direction Unrecognized. Available Arguments: [ascending, descending]")
+    sortdirection_Cmd.PrintDefaults()
+    os.Exit(1)
+  }
 }
