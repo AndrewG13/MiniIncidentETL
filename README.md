@@ -23,11 +23,7 @@ Available Commands -
   Sorts Incidents in order specified  
 - columns <attributes,...> [id, name, discovered, description, status]  
   Filters which attributes to include in the CSV file
-## Debug Mode:  
-Enables additional print statements to verify program behaviour
-- Line 20: `var debug bool = false`
-  Enable by changing to `true`  
-  
+
 Helpful Examples - 
 - `go run main.go`
 - `go run main.go sortfield -status`  
@@ -38,6 +34,10 @@ Error Examples (for testing purposes) -
 - Invalid tag: `go run main.go sortfield -nah`  
 - Duplicate Command: `go run main.go sortfield -status sortfield -discovered`
 - Invalid Command: `go run main.go sortfield -discovered randomstring columns -id`
+## Debug Mode:  
+Enables additional print statements to verify program behaviour
+- Line 20: `var debug bool = false`
+  Enable by changing to `true`  
 
 ## Future Development Plans:  
 - Improve the sorting algorithms used for sortfield (Discovered: Line 92 & Status: Line 112)
