@@ -1,5 +1,5 @@
 # MiniIncidentETL
-RadarFirst Interview Exercise - Andrew Giardina
+Interview Exercise - Andrew Giardina
   
 MiniIncidentETL is a CLI tool created in Go that will convert an appropriate JSON file into CSV format.   
 
